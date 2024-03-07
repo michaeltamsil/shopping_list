@@ -61,6 +61,10 @@ class _GroceryListState extends State<GroceryList> {
     }
 
     if (response.body == "null") {
+      setState(() {
+        _groceryItems = [];
+        _isLoading = false;
+      });
       return;
     }
 
@@ -90,6 +94,7 @@ class _GroceryListState extends State<GroceryList> {
     final index = _groceryItems.indexOf(item);
     setState(() {
       _groceryItems.remove(item);
+      _isLoading = false;
     });
 
     final url = Uri.https(
@@ -101,6 +106,7 @@ class _GroceryListState extends State<GroceryList> {
     if (response.statusCode >= 400) {
       setState(() {
         _groceryItems.insert(index, item);
+        _isLoading = false;
       });
     }
 
