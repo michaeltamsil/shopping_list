@@ -17,6 +17,8 @@ class GroceryList extends StatefulWidget {
 
 class _GroceryListState extends State<GroceryList> {
   List<GroceryItem> _groceryItems = [];
+  var _isLoading = true;
+  String? _error;
 
   @override
   void initState() {
@@ -37,6 +39,7 @@ class _GroceryListState extends State<GroceryList> {
 
     setState(() {
       _groceryItems.add(newItem);
+      _isLoading = false;
     });
     // _loadItems();
   }
@@ -46,6 +49,17 @@ class _GroceryListState extends State<GroceryList> {
         'flutter-prep-4ecb6-default-rtdb.asia-southeast1.firebasedatabase.app',
         'shopping-list.json');
     final response = await http.get(url);
+    if (response.statusCode >= 400) {
+      setState(() {
+        _error = 'Failed to fetch data. Please try again later.';
+      });
+      return;
+    } else {
+      if (_error != null) {
+        _error = null;
+      }
+    }
+
     if (response.body == "null") {
       return;
     }
@@ -84,6 +98,10 @@ class _GroceryListState extends State<GroceryList> {
       child: Text('No items added yet.'),
     );
 
+    if (_isLoading) {
+      content = const Center(child: CircularProgressIndicator());
+    }
+
     if (_groceryItems.isNotEmpty) {
       content = ListView.builder(
         itemCount: _groceryItems.length,
@@ -104,6 +122,13 @@ class _GroceryListState extends State<GroceryList> {
         ),
       );
     }
+
+    if (_error != null) {
+      content = Center(
+        child: Text(_error!),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         actions: [
